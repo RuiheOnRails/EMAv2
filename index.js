@@ -1,23 +1,28 @@
 var trackingData = [];
 var partID = "";
 var courseID = "";
-var btnIdToNameMap = new Map();
-btnIdToNameMap.set("btnBore", "Bored");
-btnIdToNameMap.set("btnEnCo", "Engaged and Concentrated");
-btnIdToNameMap.set("btnFrus", "Frustrated");
-btnIdToNameMap.set("btnDeli", "Delight");
-btnIdToNameMap.set("btnConf", "Confused");
-btnIdToNameMap.set("btnSupr", "Surprised");
-btnIdToNameMap.set("btnNeut", "Neutral");
-btnIdToNameMap.set("btnStop", "Stop");
-btnIdToNameMap.set("btnDist", "Distracted")
+
+// var slider = new Slider("#ex13", {
+//     ticks: [0, 100, 200, 300, 400],
+//     ticks_labels: ['$0', '$100', '$200', '$300', '$400'],
+//     ticks_snap_bounds: 30
+// });
 
 function addEventListenerToBtns(){
-    btnIdToNameMap.forEach((v, k) => {
-        document.getElementById(k).addEventListener("click", e => {
-            e.preventDefault();
-            addToTrackingData(v,getCurrentTimeInString());
-        });
+    document.getElementById("btnSubmit").addEventListener("click", (e) => {
+        e.preventDefault();
+        let val = getRadioValue("valenceRad");
+        let aro = getRadioValue("arousalRad");
+
+        if(val == "" || aro == ""){
+            showSelectValueModal();
+        }else{
+            addToTrackingData(val, aro, getCurrentTimeInString());
+        }
+    });
+
+    document.getElementById("btnStop").addEventListener("click", (e) => {
+        addToTrackingData("STOP", "STOP", getCurrentTimeInString());
     });
 
     document.getElementById("btnStart").addEventListener("click", (e) =>{
@@ -28,46 +33,39 @@ function addEventListenerToBtns(){
         if(partID === "" || courseID === ""){
             showModal();
         }else{
-            addToTrackingData("Start",getCurrentTimeInString());
+            addToTrackingData("START", "START", getCurrentTimeInString());
             enableBtns();
             lockRequiredForm();
             document.getElementById("btnStart").setAttribute("disabled", true);
         }
     });
-
-    // document.getElementById("btnReset").addEventListener("click", (e) =>{
-    //     e.preventDefault();
-    //     document.getElementById("btnStart").removeAttribute("disabled");
-    //     disableBtns();
-    //     enableRequiredForm();
-    //     trackingData = [];
-    // });
     
     document.getElementById("btnDownload").addEventListener("click", (e) =>{
         e.preventDefault();
         convertArrayOfObjectsToCSV(trackingData);
         downloadCSV({"filename": partID});
-        // document.getElementById("btnReset").click();
     });
+}
+
+function getRadioValue(radGroupName){
+    let retValue = "";
+    document.getElementsByName(radGroupName).forEach(el => {
+        if(el.checked == true){
+            retValue =  el.value
+        }
+    });
+    return retValue;
 }
 
 //true or false does not matter in this function, to re-enable button, attribute disabled must be removed
 function disableBtns() {
-    btnIdToNameMap.forEach((v, k) => {
-        document.getElementById(k).setAttribute("disabled", true);
-    });
-
-    // document.getElementById("btnReset").setAttribute("disabled", true);
     document.getElementById("btnDownload").setAttribute("disabled", true);
+    document.getElementById("btnSubmit").setAttribute("disabled", true);
 }
 
 function enableBtns() {
-    btnIdToNameMap.forEach((v, k) => {
-        document.getElementById(k).removeAttribute("disabled");
-    })
-
-    // document.getElementById("btnReset").removeAttribute("disabled");
     document.getElementById("btnDownload").removeAttribute("disabled");
+    document.getElementById("btnSubmit").removeAttribute("disabled");
 }
 
 function lockRequiredForm(){
@@ -135,17 +133,19 @@ function getCurrentTimeInString(){
     return (new Date).toLocaleString();
 }
 
-function addToTrackingData(emotion, time){
+function addToTrackingData(val, aro, time){
     var obj = {
         PartID: "",
         CourseID: "",
-        Emotion: "",
+        Valence: "",
+        Arousal: "",
         Date: "",
         TimeStamp: ""
     };
     obj.PartID = partID;
     obj.CourseID = courseID;
-    obj.Emotion = emotion;
+    obj.Valence = val;
+    obj.Arousal = aro;
     obj.Date = time;
     trackingData.push(obj);
 }
@@ -160,6 +160,10 @@ function showModal(){
             document.getElementById("courseID").focus();
         }
     });
+}
+
+function showSelectValueModal(){
+    $("#selectValueModal").modal('show');
 }
 
 addEventListenerToBtns();
