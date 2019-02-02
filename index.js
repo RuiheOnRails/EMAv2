@@ -8,6 +8,13 @@ var courseID = "";
 //     ticks_snap_bounds: 30
 // });
 
+function clearSelect(radGroupName){
+    document.getElementsByName(radGroupName).forEach(el => {
+        if(el.checked == true){
+            el.checked = false;
+        }
+    });
+}
 function addEventListenerToBtns(){
     document.getElementById("btnSubmit").addEventListener("click", (e) => {
         e.preventDefault();
@@ -18,6 +25,10 @@ function addEventListenerToBtns(){
             showSelectValueModal();
         }else{
             addToTrackingData(val, aro, getCurrentTimeInString());
+            val = "";
+            aro = "";
+            clearSelect("valenceRad");
+            clearSelect("arousalRad");
         }
     });
 
