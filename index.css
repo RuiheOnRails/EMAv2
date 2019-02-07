@@ -4,6 +4,7 @@
     min-height: 13rem;
 }
 
+input[type='radio'] { transform: scale(1.2); }
 
 
 @media(max-width: 780px){
